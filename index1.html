@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Remuneração</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .moving-button {
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Calculadora de Remuneração</h2>
+        <form id="salaryForm">
+            <div class="mb-3">
+                <label for="jobTitle" class="form-label">Cargo de Origem</label>
+                <select class="form-control" id="jobTitle" onchange="updateBaseSalary()" required>
+                    <option value="" disabled selected>Selecione o cargo</option>
+                    <option value="2098.58">OFICIAL ADMINISTRATIVO</option>
+                    <option value="3252.73">ANALISTA ADMINISTRATIVO</option>
+                    <option value="3252.73">ANALISTA DE TECNOLOGIA</option>
+                    <option value="personalizado">Personalizado</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="baseSalary" class="form-label">Salário Base (R$)</label>
+                <input type="number" class="form-control" id="baseSalary" placeholder="Salário base" oninput="updateRemuneration()">
+            </div>
+            <div class="mb-3">
+                <label for="level" class="form-label">Nível</label>
+                <select class="form-control" id="level" onchange="updateRemuneration()">
+                    <option value="" disabled selected>Selecione o nível</option>
+                    <option value="2966.00|1779.80">Nível 1</option>
+                    <option value="3707.50|2224.50">Nível 2</option>
+                    <option value="4490.00|2689.40">Nível 3</option>
+                    <option value="5190.50|3114.30">Nível 4</option>
+                    <option value="5932.00|3559.20">Nível 5</option>
+                    <option value="6873.50|4004.10">Nível 6</option>
+                    <option value="7415.00|4449.00">Nível 7</option>
+                    <option value="8156.50|4938.80">Nível 8</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="discount" class="form-label">Desconto (%)</label>
+                <input type="number" class="form-control" id="discount" placeholder="Desconto em porcentagem" onchange="updateRemuneration()">
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="clearForm()">Limpar</button>
+        </form>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Remuneração Final CCESP: R$ <span id="finalSalaryCCESP">0.00</span></h3>
+            </div>
+            <div class="col-md-6 text-end">
+                <h3>Remuneração Final FCESP: R$ <span id="finalSalaryFCESP">0.00</span></h3>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Desconto (R$) CCESP: R$ <span id="discountValueCCESP">0.00</span></h3>
+            </div>
+            <div class="col-md-6 text-end">
+                <h3>Desconto (R$) FCESP: R$ <span id="discountValueFCESP">0.00</span></h3>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Valor Final com Desconto CCESP: R$ <span id="finalValueWithDiscountCCESP">0.00</span></h3>
+            </div>
+            <div class="col-md-6 text-end">
+                <h3>Valor Final com Desconto FCESP: R$ <span id="finalValueWithDiscountFCESP">0.00</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <button id="movingButton" class="btn btn-primary moving-button" onclick="alert('YOU SHALL NOT PASS')">Desbloquear Nível 10</button>
+    </div>
+
+    <script>
+        function updateBaseSalary() {
+            const jobTitle = document.getElementById('jobTitle').value;
+            const baseSalaryInput = document.getElementById('baseSalary');
+            if (jobTitle === 'personalizado') {
+                baseSalaryInput.value = '';
+                baseSalaryInput.readOnly = false;
+            } else {
+                baseSalaryInput.value = jobTitle;
+                baseSalaryInput.readOnly = true;
+            }
+            updateRemuneration();
+        }
+
+        function updateRemuneration() {
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const level = document.getElementById('level').value.split('|');
+            const ccesp = parseFloat(level[0]) || 0;
+            const fcesp = parseFloat(level[1]) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) / 100 || 0;
+
+            const finalCCESP = ccesp;
+            const finalFCESP = baseSalary + fcesp;
+            const discountValueCCESP = finalCCESP * discount;
+            const discountValueFCESP = finalFCESP * discount;
+            const finalValueWithDiscountCCESP = finalCCESP - discountValueCCESP;
+            const finalValueWithDiscountFCESP = finalFCESP - discountValueFCESP;
+
+            document.getElementById('finalSalaryCCESP').textContent = finalCCESP.toFixed(2);
+            document.getElementById('finalSalaryFCESP').textContent = finalFCESP.toFixed(2);
+            document.getElementById('discountValueCCESP').textContent = discountValueCCESP.toFixed(2);
+            document.getElementById('discountValueFCESP').textContent = discountValueFCESP.toFixed(2);
+            document.getElementById('finalValueWithDiscountCCESP').textContent = finalValueWithDiscountCCESP.toFixed(2);
+            document.getElementById('finalValueWithDiscountFCESP').textContent = finalValueWithDiscountFCESP.toFixed(2);
+        }
+
+        function clearForm() {
+            document.getElementById('salaryForm').reset();
+            document.getElementById('baseSalary').value = '';
+            document.getElementById('finalSalaryCCESP').textContent = '0.00';
+            document.getElementById('finalSalaryFCESP').textContent = '0.00';
+            document.getElementById('discountValueCCESP').textContent = '0.00';
+            document.getElementById('discountValueFCESP').textContent = '0.00';
+            document.getElementById('finalValueWithDiscountCCESP').textContent = '0.00';
+            document.getElementById('finalValueWithDiscountFCESP').textContent = '0.00';
+        }
+
+        document.getElementById('movingButton').addEventListener('mouseover', function() {
+            const button = document.getElementById('movingButton');
+            const x = Math.random() * (window.innerWidth - button.clientWidth);
+            const y = Math.random() * (window.innerHeight - button.clientHeight);
+            button.style.left = x + 'px';
+            button.style.top = y + 'px';
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
